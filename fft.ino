@@ -41,33 +41,54 @@ void loop() {
 
     Complex* f_FFT = new Complex[N];
 
-    f_FFT = DFT(inputData, N);
+    unsigned long int start = micros();
+    f_FFT = FFT(inputData, N);
+    unsigned long int ends = micros();
 
-    Serial.print(sqrt(pow(f_FFT[0].real, 2) + pow(f_FFT[0].imag, 2)) / (N/2));
-    for (int i = 1; i < N/2; i++) {
-        Serial.print(" ");
-        Serial.print(sqrt(pow(f_FFT[i].real, 2) + pow(f_FFT[i].imag, 2)) / (N/2));
-    }
-    Serial.println(" ");
+    Serial.println(ends-start);
 
-    delay(1000);
+
+    // Serial.print(sqrt(pow(f_FFT[0].real, 2) + pow(f_FFT[0].imag, 2)) / (N/2));
+    // for (int i = 1; i < N/2; i++) {
+    //     Serial.print(" ");
+    //     Serial.print(sqrt(pow(f_FFT[i].real, 2) + pow(f_FFT[i].imag, 2)) / (N/2));
+    // }
+    // Serial.println(" ");
 
     delete[] f_FFT;
     delete[] inputData;
 }
 
-Complex* DFT(float* f, int N) {
-    Complex* dft_out = new Complex[N];
-
-    for (int k = 0; k < N; k++) {
-        dft_out[k].real = 0;
-        dft_out[k].imag = 0;
-
-        for (int n = 0; n < N; n++) {
-            dft_out[k].real += f[n] * cos(2 * M_PI * k * n / N);
-            dft_out[k].imag += f[n] * -sin(2 * M_PI * k * n / N);
-        }
+Complex* FFT(Complex* f, int N) {
+    if (N <= 1) {
+        return f;
     }
 
-    return dft_out;
+    Complex* even = new Complex[(N+1)/2];
+    Complex even_aux[(N+1)/2];
+    for (int i = 0; i < N; i += 2) {
+        even_aux[i/2] = f[i];
+    }
+    even = FFT(even_aux,(N+1)/2);
+
+    Complex* odd = new Complex[N/2];
+    Complex odd_aux[N/2];
+    for (int i = 1; i < N; i += 2) {
+        odd_aux[(i-1)/2] = f[i];
+    }
+    odd = FFT(odd_aux,N/2);
+
+    Complex w;
+    for (int u = 0; u < N/2; u++) {       
+        w.real = cos(-2 * M_PI * u / N);
+        w.imag = sin(-2 * M_PI * u / N);
+
+        f[u].real = even[u].real + w.real * odd[u].real - w.imag * odd[u].imag;
+        f[u].imag = even[u].imag + w.real * odd[u].imag + w.imag * odd[u].real;
+
+        f[u + N/2].real = even[u].real - w.real * odd[u].real + w.imag * odd[u].imag;
+        f[u + N/2].imag = even[u].imag - w.real * odd[u].imag - w.imag * odd[u].real;
+    }
+
+    return f;
 }
