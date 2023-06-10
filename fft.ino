@@ -41,14 +41,20 @@ void loop() {
     inputData = GetData();
 
     Complex* f_FFT = new Complex[N];
-    f_FFT = FFT(inputData, N);
 
-    Serial.print(sqrt(pow(f_FFT[0].real, 2) + pow(f_FFT[0].imag, 2)) / (N/2));
-    for (int i = 1; i < N/2; i++) {
-        Serial.print(" ");
-        Serial.print(sqrt(pow(f_FFT[i].real, 2) + pow(f_FFT[i].imag, 2)) / (N/2));
-    }
-    Serial.println(" ");
+    unsigned long int start = micros();
+    f_FFT = FFT(inputData, N);
+    unsigned long int ends = micros();
+
+    Serial.println(ends-start);
+
+
+    // Serial.print(sqrt(pow(f_FFT[0].real, 2) + pow(f_FFT[0].imag, 2)) / (N/2));
+    // for (int i = 1; i < N/2; i++) {
+    //     Serial.print(" ");
+    //     Serial.print(sqrt(pow(f_FFT[i].real, 2) + pow(f_FFT[i].imag, 2)) / (N/2));
+    // }
+    // Serial.println(" ");
 
     delete[] f_FFT;
     delete[] inputData;
