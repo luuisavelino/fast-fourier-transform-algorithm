@@ -9,7 +9,7 @@ typedef struct {
 
 // Global variables
 int counter = 0;                    // Counter for the dft
-int analogPin = A0;                 // Analog pin for the input
+int analogPin = 34;                 // Analog pin for the input
 bool adc_flag = 0;                  // flag to allow dft calculus
 float** new_cos;                    // Cosine matrix
 float** new_sin;                    // Sine matrix
@@ -74,8 +74,8 @@ void IRAM_ATTR getData() {
         counter = 0;
     }
 
-    //inputData[counter] = (((analogRead(analogPin) * 3.00) / 1024.00) - 1.00) * 100;      // Read the analog pin and convert to voltage
-    inputData[counter] = SenoidData[counter];                                                 // Mock read the analog pin and convert to voltage
+    inputData[counter] = (analogRead(analogPin) * 3.80 / 4095.00) * 1000;      // Read the analog pin and convert to voltage
+    // inputData[counter] = SenoidData[counter];                               // Mock read the analog pin and convert to voltage
 
     adc_flag = 1;
     counter++;
@@ -101,7 +101,7 @@ void setup() {
     esp_task_wdt_deinit();      // Disable the task watchdog timer
 
     Serial.begin(9600);         // Initialize serial communication
-    pinMode(A0, INPUT);         // Set the analog pin as input
+    pinMode(analogPin, INPUT);  // Set the analog pin as input
 
     new_cos = calculateCos();   // Calculate the cosine matrix
     new_sin = calculateSin();   // Calculate the sine matrix
